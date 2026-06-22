@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Mi Para Ti - Un Regalo de Luz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================
+           1. ESTILOS GENERALES Y CONFIGURACIÓN
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fffcf2; /* Fondo crema suave, muy elegante */
+            font-family: 'Montserrat', sans-serif;
+            color: #252422;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Contenedor de la app web */
+        .wrapper {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ==========================================
+           2. SISTEMA DE PÁGINAS (PANTALLAS)
+           ========================================== */
+        .page {
+            width: 100%;
+            display: none; /* Ocultas por defecto */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        /* Clase activa para mostrar la página actual */
+        .page.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           3. ESTILOS DE TEXTO Y DISEÑO
+           ========================================== */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #403d39;
+            text-align: center;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #92400e;
+            font-style: italic;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .message-container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border-left: 5px solid #fbbf24;
+            max-width: 650px;
+            margin-bottom: 30px;
+        }
+
+        .message-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #252422;
+            text-align: justify;
+        }
+
+        .final-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #403d39;
+            margin-top: 30px;
+            opacity: 0;
+        }
+
+        /* Animación para el texto final */
+        .active .final-title {
+            animation: fadeIn 1s forwards 5s;
+        }
+
+        /* ==========================================
+           4. BOTONES INTERACTIVOS
+           ========================================== */
+        .btn-next {
+            padding: 15px 45px;
+            background-color: #fbbf24;
+            color: #403d39;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.2);
+        }
+
+        .btn-next:hover {
+            background-color: #f59e0b;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(251, 191, 36, 0.3);
+        }
+
+        /* ==========================================
+           5. MODELADO Y ANIMACIÓN DEL GIRASOL 3D
+           ========================================== */
+        .sunflower-scene {
+            perspective: 1000px;
+            width: 300px;
+            height: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            position: relative;
+        }
+
+        .sunflower-pivot {
+            transform-style: preserve-3d;
+            transform: rotateX(-10deg);
+            position: relative;
+        }
+
+        /* Tallo */
+        .stem {
+            width: 10px;
+            background: linear-gradient(to top, #1b4332, #2d6a4f);
+            position: absolute;
+            bottom: 0;
+            left: -5px;
+            height: 0;
+            border-radius: 5px;
+        }
+
+        /* Se activa solo cuando la página 3 es visible */
+        .active .stem {
+            animation: growStem 2.5s forwards ease-out;
+        }
+
+        /* Hojas */
+        .leaf {
+            width: 55px;
+            height: 35px;
+            background: #40916c;
+            position: absolute;
+            border-radius: 50% 0 50% 0;
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .leaf.left { bottom: 90px; left: -55px; transform-origin: right bottom; }
+        .leaf.right { bottom: 150px; left: 5px; border-radius: 0 50% 0 50%; transform-origin: left bottom; }
+
+        .active .leaf.left { animation: popItem 1s forwards 1.2s; }
+        .active .leaf.right { animation: popItem 1s forwards 1.8s; }
+
+        /* Centro/Botón del girasol */
+        .flower-head {
+            position: absolute;
+            bottom: 260px;
+            left: 0;
+            transform-style: preserve-3d;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        .active .flower-head {
+            animation: popItem 1.2s forwards 2.5s;
+        }
+
+        .flower-center {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #582f0e 30%, #3d2616 100%);
+            border-radius: 50%;
+            position: relative;
+            z-index: 10;
+            transform: translateZ(15px);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+
+        /* Contenedor de pétalos */
+        .petals-wrapper {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            transform-style: preserve-3d;
+        }
+
+        /* Pétalos individuales */
+        .petal {
+            position: absolute;
+            top: -55px;
+            left: -14px;
+            width: 28px;
+            height: 60px;
+            background: linear-gradient(to top, #ffcc33, #f59e0b);
+            border-radius: 50% 50% 20% 20%;
+            transform-origin: bottom center;
+            opacity: 0;
+        }
+
+        .active .petal {
+            animation: bloomPetal 1s forwards;
+        }
+
+        /* KEYFRAMES ANIMACIONES */
+        @keyframes growStem { to { height: 260px; } }
+        @keyframes popItem { to { opacity: 1; transform: scale(1) translate(-50%, -50%); } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes bloomPetal {
+            from { opacity: 0; transform: rotateY(var(--ry)) rotateX(0deg) scale(0); }
+            to { opacity: 1; transform: rotateY(var(--ry)) rotateX(25deg) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <div class="page active" id="p1">
+        <h1>De mi para ti<br>un segundo regalo</h1>
+        <p class="subtitle">para demostrar que eres una chica de luz</p>
+        <button class="btn-next" onclick="nextPage('p2')">Siguiente</button>
+    </div>
+
+    <div class="page" id="p2">
+        <div class="message-container">
+            <p class="message-text">
+                Sé que ahora estás en tu propia estación de resguardo, pero no tengo la menor duda de que, al igual que esos girasoles que tanto te apasionan, vas a volver a florecer con una fuerza y una luz asombrosas. Aquí voy a estar yo, esperando pacientemente el instante en que ocurra, sin prisas, sin presiones y respetando cada uno de tus tiempos, pero con el corazón desbordando cariño y con la firme intención de abrazar y querer hasta el más mínimo e imperfecto detalle de tu ser. Así como desde el día uno nació mi interés por ti, y desde el día cinco ese interés se transformó en un sentimiento, ten por seguro que esa misma entrega y admiración se mantendrán intactas cada jornada por el resto de la vida, si tan solo me concedes el hermoso privilegio de acompañarte en el camino y regar tu girasol todos los días.
+            </p>
+        </div>
+        <button class="btn-next" onclick="nextPage('p3')">Siguiente</button>
+    </div>
+
+    <div class="page" id="p3">
+        <div class="sunflower-scene">
+            <div class="sunflower-pivot">
+                <div class="stem"></div>
+                <div class="leaf left"></div>
+                <div class="leaf right"></div>
+                <div class="flower-head">
+                    <div class="flower-center"></div>
+                    <div class="petals-wrapper" id="petalsContainer"></div>
+                </div>
+            </div>
+        </div>
+        <h2 class="final-title">Tu luz siempre vuelve a brillar ✨</h2>
+    </div>
+
+</div>
+
+<script>
+    // Lógica para cambiar de pantalla de manera fluida
+    function nextPage(pageId) {
+        // Desactiva la página actual
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        // Activa la siguiente página
+        const nextPageElement = document.getElementById(pageId);
+        nextPageElement.classList.add('active');
+    }
+
+    // Constructor automático de los pétalos 3D en base circular
+    const container = document.getElementById('petalsContainer');
+    const totalPetals = 24; // Número de pétalos alrededor del centro
+
+    for (let i = 0; i < totalPetals; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        
+        // Rotación matemática en 3D para distribuirlos uniformemente en círculo
+        petal.style.setProperty('--ry', (i * (360 / totalPetals)) + 'deg');
+        
+        // Tiempo de espera para que florezcan después de que crezca el tallo (segundo 2.5 en adelante)
+        petal.style.animationDelay = (2.6 + (i * 0.05)) + 's';
+        
+        // Intercalado de tamaños pequeños para darle profundidad y naturalidad al relieve 3D
+        if (i % 2 === 0) {
+            petal.style.height = '54px';
+            petal.style.top = '-50px';
+            petal.style.filter = 'brightness(0.95)';
+        }
+
+        container.appendChild(petal);
+    }
+</script>
+
+</body>
+</html>
