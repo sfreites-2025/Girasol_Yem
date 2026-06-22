@@ -31,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* Contenedor principal adaptable */
         .wrapper {
             width: 100%;
             max-width: 900px;
@@ -64,7 +63,7 @@
         }
 
         /* ==========================================
-           3. TIPOGRAFÍAS Y DISEÑOS ADAPTABLES
+           3. TIPOGRAFÍAS Y DISEÑOS
            ========================================== */
         h1 {
             font-family: 'Playfair Display', serif;
@@ -102,7 +101,6 @@
             transition: all 1s ease 0.2s;
         }
 
-        /* Cuando la página 2 se activa, la tarjeta flota suavemente */
         .page.active .message-container {
             opacity: 1;
             transform: translateY(0);
@@ -116,7 +114,6 @@
             text-align: justify;
         }
 
-        /* Dividimos el texto en bloques invisibles para revelarlos secuencialmente */
         .text-block {
             opacity: 0;
             transform: translateY(15px);
@@ -125,25 +122,22 @@
         }
         .text-block:last-child { margin-bottom: 0; }
 
-        /* Delays para la aparición hermosa y pausada del mensaje */
         .page.active .b1 { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
         .page.active .b2 { opacity: 1; transform: translateY(0); transition-delay: 2.5s; }
         .page.active .b3 { opacity: 1; transform: translateY(0); transition-delay: 5.0s; }
 
         .final-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #403d39;
             margin-top: 20px;
             opacity: 0;
             text-align: center;
             transition: opacity 1.5s ease;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
+            text-shadow: 0 2px 15px rgba(255,255,255,0.9);
         }
 
-        .final-title.show {
-            opacity: 1;
-        }
+        .final-title.show { opacity: 1; }
 
         /* ==========================================
            5. BOTONES E INTERFAZ
@@ -166,17 +160,13 @@
             transform: scale(0.9);
         }
 
-        /* El botón aparece de forma fluida */
         .page.active .btn-next {
             opacity: 1;
             transform: scale(1);
             transition: all 0.5s ease 1.2s;
         }
 
-        /* El botón de la página 2 espera un poco a que ella lea */
-        #p2.active .btn-next {
-            transition-delay: 7s; 
-        }
+        #p2.active .btn-next { transition-delay: 7s; }
 
         .btn-next:hover {
             background-color: #f59e0b;
@@ -185,7 +175,7 @@
         }
 
         /* ==========================================
-           6. LIENZO INTERACTIVO 3D (THREE.JS)
+           6. LIENZO INTERACTIVO 3D
            ========================================== */
         #canvas3d-container {
             width: 100vw;
@@ -199,12 +189,10 @@
             transition: opacity 1s ease;
         }
 
-        #canvas3d-container.visible {
-            opacity: 1;
-        }
+        #canvas3d-container.visible { opacity: 1; }
 
         /* ==========================================
-           7. MEDIA QUERIES (ADAPTACIÓN A MÓVILES/TABLETS)
+           7. MEDIA QUERIES
            ========================================== */
         @media (max-width: 768px) {
             h1 { font-size: 2.3rem; }
@@ -212,7 +200,7 @@
             .message-container { padding: 25px; margin-bottom: 20px; }
             .message-text { font-size: 0.95rem; line-height: 1.7; }
             .btn-next { padding: 12px 35px; font-size: 0.9rem; }
-            .final-title { font-size: 1.6rem; }
+            .final-title { font-size: 1.8rem; }
         }
 
         @media (max-width: 480px) {
@@ -222,7 +210,6 @@
             .message-text { font-size: 0.88rem; line-height: 1.6; }
         }
 
-        /* ANIMACIONES EN KEYFRAMES */
         @keyframes softFloat {
             0% { transform: translateY(0); }
             100% { transform: translateY(-8px); }
@@ -265,7 +252,6 @@
 </div>
 
 <script>
-    // Lógica para cambiar de pantalla de manera fluida
     function nextPage(pageId) {
         document.querySelectorAll('.page').forEach(page => {
             page.classList.remove('active');
@@ -281,116 +267,179 @@
     }
 
     // =========================================================================
-    // MOTOR GRÁFICO REAL 3D (THREE.JS) - RESPONSIVO
+    // MOTOR GRÁFICO HIPERREALISTA (GIRASOL BOTÁNICO 3D)
     // =========================================================================
     function initThreeJS() {
         const container = document.getElementById('canvas3d-container');
         
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        // Ajustamos la posición de la cámara según si es celular o monitor
         const isMobile = window.innerWidth < 768;
-        camera.position.set(0, isMobile ? 1.5 : 2, isMobile ? 11 : 9);
+        camera.position.set(0, isMobile ? 1.2 : 1.5, isMobile ? 10 : 8);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimización de rendimiento
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Iluminación
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+        // ILUMINACIÓN AVANZADA ESTUDIO DE FLORES
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xfff3d1, 1.3);
-        dirLight.position.set(5, 10, 7);
-        scene.add(dirLight);
+        // Luz sol dorada principal
+        const sunLight = new THREE.DirectionalLight(0xfff5db, 1.5);
+        sunLight.position.set(5, 8, 6);
+        scene.add(sunLight);
 
-        const pointLight = new THREE.PointLight(0xffaa00, 0.4, 10);
-        pointLight.position.set(-3, 3, 3);
-        scene.add(pointLight);
+        // Luz de contra (Rim Light) para iluminar los bordes de los pétalos como seda
+        const rimLight = new THREE.DirectionalLight(0xffdd66, 1.0);
+        rimLight.position.set(-5, -2, -4);
+        scene.add(rimLight);
 
-        // Grupo Raíz
         const sunflowerGroup = new THREE.Group();
-        sunflowerGroup.position.y = isMobile ? -2.0 : -2.5; // Se adapta a pantallas chicas
+        sunflowerGroup.position.y = isMobile ? -1.8 : -2.2;
         scene.add(sunflowerGroup);
 
-        // Tallo
-        const stemGeometry = new THREE.CylinderGeometry(0.08, 0.12, 1, 16);
+        // --- MODELADO: Tallo Orgánico ---
+        const stemGeometry = new THREE.CylinderGeometry(0.09, 0.14, 1, 24, 24);
         stemGeometry.translate(0, 0.5, 0); 
-        const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.8 });
+        
+        // Deformar el tallo matemáticamente para que no sea un tubo plástico perfecto
+        const posAttr = stemGeometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            let y = posAttr.getY(i);
+            if(y > 0.1 && y < 0.9) {
+                let angle = Math.atan2(posAttr.getZ(i), posAttr.getX(i));
+                // Añadimos pequeñas estrías y una curvatura natural orgánica
+                let noise = Math.sin(y * 40 + angle * 3) * 0.012;
+                posAttr.setX(i, posAttr.getX(i) + Math.cos(angle) * noise + Math.sin(y*4)*0.02);
+            }
+        }
+        stemGeometry.computeVertexNormals();
+
+        const stemMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x3a6b4c, 
+            roughness: 0.85, 
+            metalness: 0.05 
+        });
         const stem = new THREE.Mesh(stemGeometry, stemMaterial);
         stem.scale.set(1, 0.001, 1);
         sunflowerGroup.add(stem);
 
-        // Hojas
+        // --- MODELADO: Hojas con Textura Volumétrica ---
         const leafGroup1 = new THREE.Group();
         const leafGroup2 = new THREE.Group();
         
         const leafShape = new THREE.Shape();
         leafShape.moveTo(0, 0);
-        leafShape.quadraticCurveTo(0.4, 0.6, 0, 1.2);
-        leafShape.quadraticCurveTo(-0.4, 0.6, 0, 0);
+        leafShape.quadraticCurveTo(0.5, 0.5, 0.1, 1.3);
+        leafShape.quadraticCurveTo(-0.5, 0.5, 0, 0);
 
-        const leafGeo = new THREE.ExtrudeGeometry(leafShape, { depth: 0.02, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02 });
-        leafGeo.translate(0, 0, -0.01);
-        const leafMat = new THREE.MeshStandardMaterial({ color: 0x40916c, roughness: 0.7 });
+        const leafGeo = new THREE.ExtrudeGeometry(leafShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02 });
+        leafGeo.translate(0, 0, -0.015);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x417d54, roughness: 0.8 });
         
         const leaf1 = new THREE.Mesh(leafGeo, leafMat);
-        leaf1.rotation.set(0.4, 0, -1.2);
+        leaf1.rotation.set(0.5, -0.2, -1.3);
         leafGroup1.add(leaf1);
         leafGroup1.scale.set(0, 0, 0);
         sunflowerGroup.add(leafGroup1);
 
         const leaf2 = new THREE.Mesh(leafGeo, leafMat);
-        leaf2.rotation.set(0.4, 0, 1.2);
+        leaf2.rotation.set(0.4, 0.3, 1.3);
         leafGroup2.add(leaf2);
         leafGroup2.scale.set(0, 0, 0);
         sunflowerGroup.add(leafGroup2);
 
-        // Cabeza Floral
+        // --- MODELADO: Cabeza Floral ---
         const flowerHeadGroup = new THREE.Group();
         flowerHeadGroup.scale.set(0, 0, 0);
         sunflowerGroup.add(flowerHeadGroup);
 
-        const centerGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.25, 32);
-        const centerMat = new THREE.MeshStandardMaterial({ color: 0x3d2616, roughness: 0.9 });
+        // Base del centro (Copa masiva)
+        const centerGeo = new THREE.CylinderGeometry(1.0, 1.0, 0.28, 45);
+        const centerMat = new THREE.MeshStandardMaterial({ color: 0x2b1a0d, roughness: 0.95 });
         const centerMesh = new THREE.Mesh(centerGeo, centerMat);
         centerMesh.rotation.x = Math.PI / 2;
         flowerHeadGroup.add(centerMesh);
 
-        // Pétalos
+        // TEXTURIZADO DEL CENTRO: Espiral Logarítmica de Fermat (Semillas Reales)
+        const seedGroup = new THREE.Group();
+        const totalSeeds = 350; // Cantidad masiva de semillas reales
+        const seedGeo = new THREE.SphereGeometry(0.04, 6, 6);
+        seedGeo.scale(1, 1, 0.6); // Semillas aplanadas
+        
+        const seedMatOuter = new THREE.MeshStandardMaterial({ color: 0x54361c, roughness: 0.9 });
+        const seedMatInner = new THREE.MeshStandardMaterial({ color: 0x825724, roughness: 0.85 });
+
+        for (let i = 0; i < totalSeeds; i++) {
+            // Ley de Filotaxis matemática del Girasol Real (Ángulo de Oro ~ 137.5°)
+            const theta = i * 2.39996; 
+            const r = 0.05 * Math.sqrt(i); // Distribución homogénea radial
+            
+            if (r < 0.95) {
+                // Elevamos el centro dándole una curvatura convexa hiperrealista
+                const zDist = Math.cos((r / 0.95) * (Math.PI / 2)) * 0.12 + 0.14; 
+                
+                const seedMat = (r < 0.45) ? seedMatInner : seedMatOuter;
+                const seed = new THREE.Mesh(seedGeo, seedMat);
+                seed.position.set(Math.cos(theta) * r, Math.sin(theta) * r, zDist);
+                seedGroup.add(seed);
+            }
+        }
+        flowerHeadGroup.add(seedGroup);
+
+        // --- MODELADO: Pétalos de Seda Orgánicos Reales ---
         const petalShape = new THREE.Shape();
         petalShape.moveTo(0, 0);
-        petalShape.quadraticCurveTo(0.2, 0.4, 0.15, 1.0);
-        petalShape.quadraticCurveTo(0, 1.4, -0.15, 1.0);
-        petalShape.quadraticCurveTo(-0.2, 0.4, 0, 0);
+        petalShape.quadraticCurveTo(0.24, 0.3, 0.18, 1.1);
+        petalShape.quadraticCurveTo(0, 1.6, -0.18, 1.1); // Punta más estilizada y real
+        petalShape.quadraticCurveTo(-0.24, 0.3, 0, 0);
 
-        const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01 });
-        petalGeo.translate(0, 0, -0.015);
+        // Extrusión con pliegues en V
+        const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.02, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.01 });
+        petalGeo.translate(0, 0, -0.01);
         
-        const petalMat1 = new THREE.MeshStandardMaterial({ color: 0xffcc33, roughness: 0.5 });
-        const petalMat2 = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6 });
+        // Modificación de vértices para dar ondulación orgánica a cada pétalo individual
+        const petalPos = petalGeo.attributes.position;
+        for(let i=0; i<petalPos.count; i++) {
+            let y = petalPos.getY(i);
+            let x = petalPos.getX(i);
+            if(y > 0.4) {
+                // Genera el canal central y curvatura realista de la hoja
+                let wave = Math.sin(x * 6) * 0.03 + (y*y)*0.015;
+                petalPos.setZ(i, petalPos.getZ(i) + wave);
+            }
+        }
+        petalGeo.computeVertexNormals();
 
-        const totalPetals = 30;
+        // Dos materiales con brillo aterciopelado (Roughness controlado)
+        const petalMat1 = new THREE.MeshStandardMaterial({ color: 0xffcb1f, roughness: 0.52, metalness: 0.02 });
+        const petalMat2 = new THREE.MeshStandardMaterial({ color: 0xe68a00, roughness: 0.60, metalness: 0.01 });
+
+        const totalPetals = 45; // Más pétalos superpuestos para frondosidad real
         const petalsArray = [];
 
         for (let i = 0; i < totalPetals; i++) {
             const angle = (i / totalPetals) * Math.PI * 2;
+            const randomVariance = (Math.random() - 0.5) * 0.05; // Variación natural imperfección botánica
             
+            // Fila Frontal Principal
             const petalMesh = new THREE.Mesh(petalGeo, petalMat1);
-            petalMesh.position.set(Math.cos(angle) * 0.8, Math.sin(angle) * 0.8, 0.05);
-            petalMesh.rotation.z = angle - Math.PI / 2;
-            petalMesh.rotation.x = 0.2; 
+            petalMesh.position.set(Math.cos(angle) * 0.92, Math.sin(angle) * 0.92, 0.06);
+            petalMesh.rotation.z = angle - Math.PI / 2 + randomVariance;
+            petalMesh.rotation.x = 0.22 + (Math.random() * 0.04); 
             petalMesh.scale.set(0, 0, 0);
             flowerHeadGroup.add(petalMesh);
             petalsArray.push(petalMesh);
 
+            // Fila Posterior Alterna Desplazada
             const petalMeshBack = new THREE.Mesh(petalGeo, petalMat2);
             const backAngle = angle + (Math.PI / totalPetals);
-            petalMeshBack.position.set(Math.cos(backAngle) * 0.78, Math.sin(backAngle) * 0.78, -0.02);
-            petalMeshBack.rotation.z = backAngle - Math.PI / 2;
-            petalMeshBack.rotation.x = 0.08; 
+            petalMeshBack.position.set(Math.cos(backAngle) * 0.88, Math.sin(backAngle) * 0.88, -0.04);
+            petalMeshBack.rotation.z = backAngle - Math.PI / 2 + randomVariance;
+            petalMeshBack.rotation.x = 0.10; 
             petalMeshBack.scale.set(0, 0, 0);
             flowerHeadGroup.add(petalMeshBack);
             petalsArray.push(petalMeshBack);
@@ -410,7 +459,7 @@
                 leafGroup2.position.y = stem.scale.y * 0.6;
             }
 
-            // Hojas
+            // Despliegue Hojas
             if (elapsedTime > 1.2 && leafGroup1.scale.x < 1) {
                 const growth = (elapsedTime - 1.2) * 1.2;
                 leafGroup1.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
@@ -420,18 +469,18 @@
                 leafGroup2.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
             }
 
-            // Centro
+            // Aparición del Centro Orgánico
             if (elapsedTime > 2.5 && flowerHeadGroup.scale.x < 1) {
                 const growth = (elapsedTime - 2.5) * 1.5;
                 flowerHeadGroup.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
             }
 
-            // Pétalos
+            // Despliegue en Espiral de los Pétalos Reales
             if (elapsedTime > 3.2) {
                 petalsArray.forEach((p, index) => {
-                    const delay = 3.2 + (index * 0.03);
+                    const delay = 3.2 + (index * 0.02);
                     if (elapsedTime > delay && p.scale.x < 1) {
-                        const petalGrowth = (elapsedTime - delay) * 2.5;
+                        const petalGrowth = (elapsedTime - delay) * 2.8;
                         p.scale.set(Math.min(1, petalGrowth), Math.min(1, petalGrowth), Math.min(1, petalGrowth));
                     }
                 });
@@ -441,22 +490,21 @@
                 document.getElementById('text3').classList.add('show');
             }
 
-            // Rotación interactiva suave
-            sunflowerGroup.rotation.y = Math.sin(elapsedTime * 0.5) * 0.15;
+            // Rotación interactiva de exhibición
+            sunflowerGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.2;
 
             renderer.render(scene, camera);
         }
 
         animate();
 
-        // Soporte responsivo de redimensión en tiempo real
         window.addEventListener('resize', onWindowResize, false);
         function onWindowResize() {
             const isMobileNow = window.innerWidth < 768;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            camera.position.set(0, isMobileNow ? 1.5 : 2, isMobileNow ? 11 : 9);
-            sunflowerGroup.position.y = isMobileNow ? -2.0 : -2.5;
+            camera.position.set(0, isMobileNow ? 1.2 : 1.5, isMobileNow ? 10 : 8);
+            sunflowerGroup.position.y = isMobileNow ? -1.8 : -2.2;
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
     }
