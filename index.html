@@ -7,6 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
         /* ==========================================
            1. ESTILOS GENERALES Y CONFIGURACIÓN
@@ -18,7 +21,7 @@
         }
 
         body {
-            background-color: #fffcf2; /* Fondo crema suave, muy elegante */
+            background-color: #fffcf2; /* Fondo crema suave elegante */
             font-family: 'Montserrat', sans-serif;
             color: #252422;
             height: 100vh;
@@ -28,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* Contenedor de la app web */
         .wrapper {
             width: 100%;
             max-width: 800px;
@@ -37,14 +39,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 2;
         }
 
         /* ==========================================
-           2. SISTEMA DE PÁGINAS (PANTALLAS)
+           2. PÁGINAS INTERACTIVAS
            ========================================== */
         .page {
             width: 100%;
-            display: none; /* Ocultas por defecto */
+            display: none; 
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -53,7 +56,6 @@
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        /* Clase activa para mostrar la página actual */
         .page.active {
             display: flex;
             opacity: 1;
@@ -61,7 +63,7 @@
         }
 
         /* ==========================================
-           3. ESTILOS DE TEXTO Y DISEÑO
+           3. TIPOGRAFÍAS Y TEXTO
            ========================================== */
         h1 {
             font-family: 'Playfair Display', serif;
@@ -102,17 +104,18 @@
             font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
             color: #403d39;
-            margin-top: 30px;
+            margin-top: 20px;
             opacity: 0;
+            text-align: center;
+            transition: opacity 1.5s ease;
         }
 
-        /* Animación para el texto final */
-        .active .final-title {
-            animation: fadeIn 1s forwards 5s;
+        .final-title.show {
+            opacity: 1;
         }
 
         /* ==========================================
-           4. BOTONES INTERACTIVOS
+           4. BOTONES
            ========================================== */
         .btn-next {
             padding: 15px 45px;
@@ -137,117 +140,28 @@
         }
 
         /* ==========================================
-           5. MODELADO Y ANIMACIÓN DEL GIRASOL 3D
+           5. CONTENEDOR DEL LIENZO 3D (THREE.JS)
            ========================================== */
-        .sunflower-scene {
-            perspective: 1000px;
-            width: 300px;
-            height: 380px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            position: relative;
-        }
-
-        .sunflower-pivot {
-            transform-style: preserve-3d;
-            transform: rotateX(-10deg);
-            position: relative;
-        }
-
-        /* Tallo */
-        .stem {
-            width: 10px;
-            background: linear-gradient(to top, #1b4332, #2d6a4f);
+        #canvas3d-container {
+            width: 100vw;
+            height: 100vh;
             position: absolute;
-            bottom: 0;
-            left: -5px;
-            height: 0;
-            border-radius: 5px;
-        }
-
-        /* Se activa solo cuando la página 3 es visible */
-        .active .stem {
-            animation: growStem 2.5s forwards ease-out;
-        }
-
-        /* Hojas */
-        .leaf {
-            width: 55px;
-            height: 35px;
-            background: #40916c;
-            position: absolute;
-            border-radius: 50% 0 50% 0;
-            transform: scale(0);
-            opacity: 0;
-        }
-
-        .leaf.left { bottom: 90px; left: -55px; transform-origin: right bottom; }
-        .leaf.right { bottom: 150px; left: 5px; border-radius: 0 50% 0 50%; transform-origin: left bottom; }
-
-        .active .leaf.left { animation: popItem 1s forwards 1.2s; }
-        .active .leaf.right { animation: popItem 1s forwards 1.8s; }
-
-        /* Centro/Botón del girasol */
-        .flower-head {
-            position: absolute;
-            bottom: 260px;
+            top: 0;
             left: 0;
-            transform-style: preserve-3d;
-            transform: translate(-50%, -50%) scale(0);
-        }
-
-        .active .flower-head {
-            animation: popItem 1.2s forwards 2.5s;
-        }
-
-        .flower-center {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, #582f0e 30%, #3d2616 100%);
-            border-radius: 50%;
-            position: relative;
-            z-index: 10;
-            transform: translateZ(15px);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
-        }
-
-        /* Contenedor de pétalos */
-        .petals-wrapper {
-            position: absolute;
-            top: 40px;
-            left: 40px;
-            transform-style: preserve-3d;
-        }
-
-        /* Pétalos individuales */
-        .petal {
-            position: absolute;
-            top: -55px;
-            left: -14px;
-            width: 28px;
-            height: 60px;
-            background: linear-gradient(to top, #ffcc33, #f59e0b);
-            border-radius: 50% 50% 20% 20%;
-            transform-origin: bottom center;
+            z-index: 1;
+            pointer-events: none; /* Permite interactuar con los botones encima */
             opacity: 0;
+            transition: opacity 1s ease;
         }
 
-        .active .petal {
-            animation: bloomPetal 1s forwards;
-        }
-
-        /* KEYFRAMES ANIMACIONES */
-        @keyframes growStem { to { height: 260px; } }
-        @keyframes popItem { to { opacity: 1; transform: scale(1) translate(-50%, -50%); } }
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes bloomPetal {
-            from { opacity: 0; transform: rotateY(var(--ry)) rotateX(0deg) scale(0); }
-            to { opacity: 1; transform: rotateY(var(--ry)) rotateX(25deg) scale(1); }
+        #canvas3d-container.visible {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
+
+<div id="canvas3d-container"></div>
 
 <div class="wrapper">
 
@@ -267,57 +181,227 @@
     </div>
 
     <div class="page" id="p3">
-        <div class="sunflower-scene">
-            <div class="sunflower-pivot">
-                <div class="stem"></div>
-                <div class="leaf left"></div>
-                <div class="leaf right"></div>
-                <div class="flower-head">
-                    <div class="flower-center"></div>
-                    <div class="petals-wrapper" id="petalsContainer"></div>
-                </div>
-            </div>
-        </div>
-        <h2 class="final-title">Tu luz siempre vuelve a brillar ✨</h2>
+        <h2 class="final-title" id="text3">Tu luz siempre vuelve a brillar ✨</h2>
     </div>
 
 </div>
 
 <script>
-    // Lógica para cambiar de pantalla de manera fluida
+    // Variables de control de flujo de páginas
     function nextPage(pageId) {
-        // Desactiva la página actual
         document.querySelectorAll('.page').forEach(page => {
             page.classList.remove('active');
         });
         
-        // Activa la siguiente página
         const nextPageElement = document.getElementById(pageId);
         nextPageElement.classList.add('active');
+
+        // Si se entra en la página 3, encendemos el motor gráfico 3D
+        if (pageId === 'p3') {
+            document.getElementById('canvas3d-container').classList.add('visible');
+            initThreeJS();
+        }
     }
 
-    // Constructor automático de los pétalos 3D en base circular
-    const container = document.getElementById('petalsContainer');
-    const totalPetals = 24; // Número de pétalos alrededor del centro
+    // =========================================================================
+    // MOTOR GRÁFICO REAL 3D (THREE.JS) - MODELADO PASO A PASO
+    // =========================================================================
+    function initThreeJS() {
+        const container = document.getElementById('canvas3d-container');
+        
+        // 1. Escena, Cámara y Renderizador
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 10);
 
-    for (let i = 0; i < totalPetals; i++) {
-        const petal = document.createElement('div');
-        petal.className = 'petal';
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        // 2. Iluminación de estudio 3D (para dar volumen realista al girasol)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xfff3d1, 1.2);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // Punto de luz extra para resaltar los tonos amarillos de los pétalos
+        const pointLight = new THREE.PointLight(0xffaa00, 0.5, 10);
+        pointLight.position.set(-3, 3, 3);
+        scene.add(pointLight);
+
+        // 3. Grupo Raíz del Girasol
+        const sunflowerGroup = new THREE.Group();
+        sunflowerGroup.position.y = -2.5; // Ajustar base en pantalla
+        scene.add(sunflowerGroup);
+
+        // --- MODELADO: El Tallo (Cilindro Real) ---
+        const stemGeometry = new THREE.CylinderGeometry(0.08, 0.12, 1, 16);
+        // Movemos el pivote al suelo para que crezca correctamente hacia arriba
+        stemGeometry.translate(0, 0.5, 0); 
+        const stemMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x2d6a4f, 
+            roughness: 0.8,
+            metalness: 0.1 
+        });
+        const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+        stem.scale.set(1, 0.001, 1); // Empezamos en escala invisible de altura
+        sunflowerGroup.add(stem);
+
+        // --- MODELADO: Las Hojas (Geometrías Extruidas) ---
+        const leafGroup1 = new THREE.Group();
+        const leafGroup2 = new THREE.Group();
         
-        // Rotación matemática en 3D para distribuirlos uniformemente en círculo
-        petal.style.setProperty('--ry', (i * (360 / totalPetals)) + 'deg');
+        const leafShape = new THREE.Shape();
+        leafShape.moveTo(0, 0);
+        leafShape.quadraticCurveTo(0.4, 0.6, 0, 1.2);
+        leafShape.quadraticCurveTo(-0.4, 0.6, 0, 0);
+
+        const extrudeSettings = { depth: 0.02, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 };
+        const leafGeo = new THREE.ExtrudeGeometry(leafShape, extrudeSettings);
+        leafGeo.translate(0, 0, -0.01);
+
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x40916c, roughness: 0.7 });
         
-        // Tiempo de espera para que florezcan después de que crezca el tallo (segundo 2.5 en adelante)
-        petal.style.animationDelay = (2.6 + (i * 0.05)) + 's';
+        const leaf1 = new THREE.Mesh(leafGeo, leafMat);
+        leaf1.rotation.set(0.4, 0, -1.2);
+        leafGroup1.add(leaf1);
+        leafGroup1.position.set(0, 1.0, 0);
+        leafGroup1.scale.set(0, 0, 0);
+        sunflowerGroup.add(leafGroup1);
+
+        const leaf2 = new THREE.Mesh(leafGeo, leafMat);
+        leaf2.rotation.set(0.4, 0, 1.2);
+        leafGroup2.add(leaf2);
+        leafGroup2.position.set(0, 1.6, 0);
+        leafGroup2.scale.set(0, 0, 0);
+        sunflowerGroup.add(leafGroup2);
+
+        // --- MODELADO: Cabeza de la flor (Centro Volumétrico) ---
+        const flowerHeadGroup = new THREE.Group();
+        flowerHeadGroup.scale.set(0, 0, 0);
+        sunflowerGroup.add(flowerHeadGroup);
+
+        // Semillas / Centro (Cilindro aplanado con relieve convexo)
+        const centerGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.25, 32);
+        const centerMat = new THREE.MeshStandardMaterial({ 
+            color: 0x3d2616, 
+            roughness: 0.9,
+            bumpScale: 0.05
+        });
+        const centerMesh = new THREE.Mesh(centerGeo, centerMat);
+        centerMesh.rotation.x = Math.PI / 2; // Orientarlo de frente hacia la cámara
+        flowerHeadGroup.add(centerMesh);
+
+        // --- MODELADO: Pétalos Tridimensionales Realistas ---
+        const petalShape = new THREE.Shape();
+        petalShape.moveTo(0, 0);
+        petalShape.quadraticCurveTo(0.2, 0.4, 0.15, 1.0);
+        petalShape.quadraticCurveTo(0, 1.4, -0.15, 1.0);
+        petalShape.quadraticCurveTo(-0.2, 0.4, 0, 0);
+
+        const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01 });
+        petalGeo.translate(0, 0, -0.015);
         
-        // Intercalado de tamaños pequeños para darle profundidad y naturalidad al relieve 3D
-        if (i % 2 === 0) {
-            petal.style.height = '54px';
-            petal.style.top = '-50px';
-            petal.style.filter = 'brightness(0.95)';
+        const petalMat1 = new THREE.MeshStandardMaterial({ color: 0xffcc33, roughness: 0.5, metalness: 0.0 });
+        const petalMat2 = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6, metalness: 0.0 });
+
+        const totalPetals = 30;
+        const petalsArray = [];
+
+        // Generamos dos hileras superpuestas de pétalos con ligeras variaciones de ángulo Z para profundidad 3D
+        for (let i = 0; i < totalPetals; i++) {
+            const angle = (i / totalPetals) * Math.PI * 2;
+            
+            // Capa delantera
+            const petalMesh = new THREE.Mesh(petalGeo, petalMat1);
+            petalMesh.position.set(Math.cos(angle) * 0.8, Math.sin(angle) * 0.8, 0.05);
+            petalMesh.rotation.z = angle - Math.PI / 2;
+            petalMesh.rotation.x = 0.2; // Ligera inclinación hacia adelante
+            petalMesh.scale.set(0, 0, 0);
+            flowerHeadGroup.add(petalMesh);
+            petalsArray.push(petalMesh);
+
+            // Capa trasera intermedia intercalada
+            const petalMeshBack = new THREE.Mesh(petalGeo, petalMat2);
+            const backAngle = angle + (Math.PI / totalPetals);
+            petalMeshBack.position.set(Math.cos(backAngle) * 0.78, Math.sin(backAngle) * 0.78, -0.02);
+            petalMeshBack.rotation.z = backAngle - Math.PI / 2;
+            petalMeshBack.rotation.x = 0.08; 
+            petalMeshBack.scale.set(0, 0, 0);
+            flowerHeadGroup.add(petalMeshBack);
+            petalsArray.push(petalMeshBack);
         }
 
-        container.appendChild(petal);
+        // Variable de control temporal interna
+        let clock = new THREE.Clock();
+
+        // 4. Bucle de Animación y Crecimiento Orgánico Secuencial
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const elapsedTime = clock.getElapsedTime();
+
+            // Etapa 1: Crecimiento vertical del Tallo (Segundos 0 a 2.5)
+            if (stem.scale.y < 3.2) {
+                stem.scale.y = Math.min(3.2, elapsedTime * 1.3);
+                // Posicionar la cabeza de la flor dinámicamente justo al tope del tallo
+                flowerHeadGroup.position.y = stem.scale.y;
+                leafGroup1.position.y = stem.scale.y * 0.35;
+                leafGroup2.position.y = stem.scale.y * 0.6;
+            }
+
+            // Etapa 2: Brote lateral de las hojas (A partir del segundo 1.2)
+            if (elapsedTime > 1.2 && leafGroup1.scale.x < 1) {
+                const growthFactor = (elapsedTime - 1.2) * 1.2;
+                leafGroup1.scale.set(Math.min(1, growthFactor), Math.min(1, growthFactor), Math.min(1, growthFactor));
+            }
+            if (elapsedTime > 1.8 && leafGroup2.scale.x < 1) {
+                const growthFactor = (elapsedTime - 1.8) * 1.2;
+                leafGroup2.scale.set(Math.min(1, growthFactor), Math.min(1, growthFactor), Math.min(1, growthFactor));
+            }
+
+            // Etapa 3: Crecimiento del botón central de la flor (A partir del segundo 2.5)
+            if (elapsedTime > 2.5 && flowerHeadGroup.scale.x < 1) {
+                const growthFactor = (elapsedTime - 2.5) * 1.5;
+                flowerHeadGroup.scale.set(Math.min(1, growthFactor), Math.min(1, growthFactor), Math.min(1, growthFactor));
+            }
+
+            // Etapa 4: Despliegue de los pétalos 3D uno a uno en cascada matemática (A partir del segundo 3.2)
+            if (elapsedTime > 3.2) {
+                petalsArray.forEach((p, index) => {
+                    const delay = 3.2 + (index * 0.03);
+                    if (elapsedTime > delay && p.scale.x < 1) {
+                        const petalGrowth = (elapsedTime - delay) * 2.5;
+                        p.scale.set(Math.min(1, petalGrowth), Math.min(1, petalGrowth), Math.min(1, petalGrowth));
+                    }
+                });
+            }
+
+            // Etapa 5: Activación fluida del texto final
+            if (elapsedTime > 5.5) {
+                document.getElementById('text3').classList.add('show');
+            }
+
+            // Animación continua e interactiva de rotación global (da profundidad al entorno 3D)
+            sunflowerGroup.rotation.y = Math.sin(elapsedTime * 0.5) * 0.15;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Control responsivo ante cambios de pantalla del navegador
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 </script>
 
