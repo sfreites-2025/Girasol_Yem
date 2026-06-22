@@ -41,7 +41,7 @@
             justify-content: center;
             align-items: center;
             z-index: 2;
-            pointer-events: none; /* Deja pasar los clics al canvas cuando no hay texto encima */
+            pointer-events: none; /* Permite que los clics pasen al lienzo 3D */
         }
 
         /* ==========================================
@@ -64,7 +64,7 @@
             transform: translateY(0);
         }
 
-        /* Activa la interacción por botones o texto por encima del modelo */
+        /* Reactiva la interacción de botones y elementos de interfaz */
         .page.active *, .btn-next {
             pointer-events: auto;
         }
@@ -92,7 +92,7 @@
         }
 
         /* ==========================================
-           4. TARJETA DE MENSAJE (PÁGINA 2)
+           4. PÁGINA 2: TARJETA DE MENSAJE
            ========================================== */
         .message-container {
             background: rgba(255, 255, 255, 0.9);
@@ -134,25 +134,25 @@
         .page.active .b3 { opacity: 1; transform: translateY(0); transition-delay: 5.0s; }
 
         /* ==========================================
-           5. PÁGINA 3: TEXTO EN LA ESQUINA SUPERIOR DERECHA
+           5. PÁGINA 3: FRASE FIJA ARRIBA A LA DERECHA
            ========================================== */
         #p3 {
             position: absolute;
-            top: 40px;
-            right: 40px;
+            top: 50px;
+            right: 50px;
             width: auto;
-            max-width: 350px;
+            max-width: 400px;
             align-items: flex-end;
             text-align: right;
         }
 
         .final-title {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
+            font-size: 2.6rem;
             color: #403d39;
             opacity: 0;
             transition: opacity 1.5s ease;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
+            text-shadow: 0 2px 15px rgba(255,255,255,0.9);
         }
 
         .final-title.show {
@@ -186,9 +186,7 @@
             transition: all 0.5s ease 1.2s;
         }
 
-        #p2.active .btn-next {
-            transition-delay: 7s; 
-        }
+        #p2.active .btn-next { transition-delay: 7s; }
 
         .btn-next:hover {
             background-color: #f59e0b;
@@ -197,7 +195,7 @@
         }
 
         /* ==========================================
-           7. LIENZO INTERACTIVO 3D (CANVAS)
+           7. LIENZO INTERACTIVO 3D
            ========================================== */
         #canvas3d-container {
             width: 100vw;
@@ -208,16 +206,13 @@
             z-index: 1;
             opacity: 0;
             transition: opacity 1s ease;
-            /* Se reactiva para permitir arrastrar, rotar y hacer zoom */
-            pointer-events: auto; 
+            pointer-events: auto; /* Permite arrastrar el ratón sobre el escenario */
         }
 
-        #canvas3d-container.visible {
-            opacity: 1;
-        }
+        #canvas3d-container.visible { opacity: 1; }
 
         /* ==========================================
-           8. MEDIA QUERIES (MÓVILES Y TABLETS)
+           8. MEDIA QUERIES (MÓVILES)
            ========================================== */
         @media (max-width: 768px) {
             h1 { font-size: 2.3rem; }
@@ -226,10 +221,10 @@
             .message-text { font-size: 0.95rem; line-height: 1.7; }
             .btn-next { padding: 12px 35px; font-size: 0.9rem; }
             
-            /* Ajuste de texto para pantallas pequeñas */
+            /* En pantallas chicas el texto va abajo centrado para no obstruir */
             #p3 {
                 top: auto;
-                bottom: 40px;
+                bottom: 50px;
                 right: 0;
                 left: 0;
                 width: 100%;
@@ -238,7 +233,7 @@
                 align-items: center;
                 text-align: center;
             }
-            .final-title { font-size: 1.6rem; }
+            .final-title { font-size: 1.8rem; }
         }
 
         @media (max-width: 480px) {
@@ -305,7 +300,7 @@
     }
 
     // =========================================================================
-    // MOTOR GRÁFICO 3D INTERACTIVO CON CONTROL DE CÁMARA
+    // MOTOR GRÁFICO 3D CON PROFUNDIDAD REAL Y PARTÍCULAS DE LUZ
     // =========================================================================
     function initThreeJS() {
         const container = document.getElementById('canvas3d-container');
@@ -314,128 +309,214 @@
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
         const isMobile = window.innerWidth < 768;
-        // Ajustamos posición inicial de la cámara
-        camera.position.set(0, isMobile ? 1.5 : 2, isMobile ? 11 : 9);
+        camera.position.set(0, isMobile ? 1.2 : 1.5, isMobile ? 10 : 7.5);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // --- SISTEMA DE CONTROLES (ORBIT CONTROLS) ---
+        // --- CONTROLES DE ÓRBITA ACTIVERAS (INTERACTIVIDAD DE CÁMARA) ---
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // Movimiento fluido de frenado térmico
+        controls.enableDamping = true; 
         controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 1.7; // Evita que la cámara se vaya totalmente abajo del suelo
-        controls.minDistance = 3;  // Límite máximo de zoom hacia adentro
-        controls.maxDistance = 20; // Límite máximo de zoom hacia afuera
+        controls.maxPolarAngle = Math.PI / 1.7; // Evita atravesar el suelo artificial abajo
+        controls.minDistance = 3.5; 
+        controls.maxDistance = 15;
 
-        // Iluminación
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+        // Iluminación Avanzada Volumétrica
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xfff3d1, 1.3);
-        dirLight.position.set(5, 10, 7);
-        scene.add(dirLight);
+        const sunLight = new THREE.DirectionalLight(0xfff5db, 1.6);
+        sunLight.position.set(6, 8, 7);
+        scene.add(sunLight);
 
-        const pointLight = new THREE.PointLight(0xffaa00, 0.4, 10);
-        pointLight.position.set(-3, 3, 3);
-        scene.add(pointLight);
+        const rimLight = new THREE.DirectionalLight(0xffdd66, 0.9);
+        rimLight.position.set(-6, -2, -5);
+        scene.add(rimLight);
 
-        // Grupo Raíz
+        // Grupo del Girasol (Desplazado ligeramente a la izquierda en PC para cuadrar con el texto)
         const sunflowerGroup = new THREE.Group();
-        // En monitores grandes, movemos el girasol a la izquierda (x: -1.2) para centrar la estética con el texto derecho
-        sunflowerGroup.position.set(isMobile ? 0 : -1.2, isMobile ? -2.0 : -2.5, 0); 
+        sunflowerGroup.position.set(isMobile ? 0 : -1.2, isMobile ? -1.8 : -2.3, 0);
         scene.add(sunflowerGroup);
 
-        // Tallo
-        const stemGeometry = new THREE.CylinderGeometry(0.08, 0.12, 1, 16);
+        // --- TALLO ---
+        const stemGeometry = new THREE.CylinderGeometry(0.09, 0.14, 1, 24, 24);
         stemGeometry.translate(0, 0.5, 0); 
-        const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.8 });
+        
+        const posAttr = stemGeometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            let y = posAttr.getY(i);
+            if(y > 0.1 && y < 0.9) {
+                let angle = Math.atan2(posAttr.getZ(i), posAttr.getX(i));
+                let noise = Math.sin(y * 40 + angle * 3) * 0.012;
+                posAttr.setX(i, posAttr.getX(i) + Math.cos(angle) * noise + Math.sin(y*4)*0.02);
+            }
+        }
+        stemGeometry.computeVertexNormals();
+
+        const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x3a6b4c, roughness: 0.85 });
         const stem = new THREE.Mesh(stemGeometry, stemMaterial);
         stem.scale.set(1, 0.001, 1);
         sunflowerGroup.add(stem);
 
-        // Hojas
+        // --- HOJAS ---
         const leafGroup1 = new THREE.Group();
         const leafGroup2 = new THREE.Group();
         
         const leafShape = new THREE.Shape();
         leafShape.moveTo(0, 0);
-        leafShape.quadraticCurveTo(0.4, 0.6, 0, 1.2);
-        leafShape.quadraticCurveTo(-0.4, 0.6, 0, 0);
+        leafShape.quadraticCurveTo(0.5, 0.5, 0.1, 1.3);
+        leafShape.quadraticCurveTo(-0.5, 0.5, 0, 0);
 
-        const leafGeo = new THREE.ExtrudeGeometry(leafShape, { depth: 0.02, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02 });
-        leafGeo.translate(0, 0, -0.01);
-        const leafMat = new THREE.MeshStandardMaterial({ color: 0x40916c, roughness: 0.7 });
+        const leafGeo = new THREE.ExtrudeGeometry(leafShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02 });
+        leafGeo.translate(0, 0, -0.015);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x417d54, roughness: 0.8 });
         
         const leaf1 = new THREE.Mesh(leafGeo, leafMat);
-        leaf1.rotation.set(0.4, 0, -1.2);
+        leaf1.rotation.set(0.5, -0.2, -1.3);
         leafGroup1.add(leaf1);
         leafGroup1.scale.set(0, 0, 0);
         sunflowerGroup.add(leafGroup1);
 
         const leaf2 = new THREE.Mesh(leafGeo, leafMat);
-        leaf2.rotation.set(0.4, 0, 1.2);
+        leaf2.rotation.set(0.4, 0.3, 1.3);
         leafGroup2.add(leaf2);
         leafGroup2.scale.set(0, 0, 0);
         sunflowerGroup.add(leafGroup2);
 
-        // Cabeza Floral
+        // --- CABEZA FLORAL 3D (Estructura cóncava/profunda) ---
         const flowerHeadGroup = new THREE.Group();
         flowerHeadGroup.scale.set(0, 0, 0);
         sunflowerGroup.add(flowerHeadGroup);
 
-        const centerGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.25, 32);
-        const centerMat = new THREE.MeshStandardMaterial({ color: 0x3d2616, roughness: 0.9 });
+        const centerGeo = new THREE.CylinderGeometry(1.0, 1.0, 0.28, 45);
+        const centerMat = new THREE.MeshStandardMaterial({ color: 0x2b1a0d, roughness: 0.95 });
         const centerMesh = new THREE.Mesh(centerGeo, centerMat);
         centerMesh.rotation.x = Math.PI / 2;
         flowerHeadGroup.add(centerMesh);
 
-        // Pétalos
+        // Semillas en Espiral de Fermat con relieve convexo (Efecto Domo 3D)
+        const seedGroup = new THREE.Group();
+        const totalSeeds = 350; 
+        const seedGeo = new THREE.SphereGeometry(0.04, 6, 6);
+        seedGeo.scale(1, 1, 0.6); 
+        
+        const seedMatOuter = new THREE.MeshStandardMaterial({ color: 0x54361c, roughness: 0.9 });
+        const seedMatInner = new THREE.MeshStandardMaterial({ color: 0x825724, roughness: 0.85 });
+
+        for (let i = 0; i < totalSeeds; i++) {
+            const theta = i * 2.39996; 
+            const r = 0.05 * Math.sqrt(i); 
+            
+            if (r < 0.95) {
+                // Genera la elevación central volumétrica en el eje Z
+                const zDist = Math.cos((r / 0.95) * (Math.PI / 2)) * 0.15 + 0.14; 
+                
+                const seedMat = (r < 0.45) ? seedMatInner : seedMatOuter;
+                const seed = new THREE.Mesh(seedGeo, seedMat);
+                seed.position.set(Math.cos(theta) * r, Math.sin(theta) * r, zDist);
+                seedGroup.add(seed);
+            }
+        }
+        flowerHeadGroup.add(seedGroup);
+
+        // --- PÉTALOS ORGÁNICOS EN CAPAS CON PROFUNDIDAD EN 3D ---
         const petalShape = new THREE.Shape();
         petalShape.moveTo(0, 0);
-        petalShape.quadraticCurveTo(0.2, 0.4, 0.15, 1.0);
-        petalShape.quadraticCurveTo(0, 1.4, -0.15, 1.0);
-        petalShape.quadraticCurveTo(-0.2, 0.4, 0, 0);
+        petalShape.quadraticCurveTo(0.24, 0.3, 0.18, 1.1);
+        petalShape.quadraticCurveTo(0, 1.6, -0.18, 1.1); 
+        petalShape.quadraticCurveTo(-0.24, 0.3, 0, 0);
 
-        const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01 });
-        petalGeo.translate(0, 0, -0.015);
+        const petalGeo = new THREE.ExtrudeGeometry(petalShape, { depth: 0.02, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.01 });
+        petalGeo.translate(0, 0, -0.01);
         
-        const petalMat1 = new THREE.MeshStandardMaterial({ color: 0xffcc33, roughness: 0.5 });
-        const petalMat2 = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6 });
+        // Ondulaciones orgánicas internas por cada pétalo
+        const petalPos = petalGeo.attributes.position;
+        for(let i=0; i<petalPos.count; i++) {
+            let y = petalPos.getY(i);
+            let x = petalPos.getX(i);
+            if(y > 0.4) {
+                let wave = Math.sin(x * 6) * 0.03 + (y*y)*0.015;
+                petalPos.setZ(i, petalPos.getZ(i) + wave);
+            }
+        }
+        petalGeo.computeVertexNormals();
 
-        const totalPetals = 30;
+        const petalMat1 = new THREE.MeshStandardMaterial({ color: 0xffcb1f, roughness: 0.52 });
+        const petalMat2 = new THREE.MeshStandardMaterial({ color: 0xe68a00, roughness: 0.60 });
+
+        const totalPetals = 45; 
         const petalsArray = [];
 
         for (let i = 0; i < totalPetals; i++) {
             const angle = (i / totalPetals) * Math.PI * 2;
+            const randomVariance = (Math.random() - 0.5) * 0.04;
             
+            // CAPA EN FRENTE: Pétalos inclinados hacia adelante (Efecto embudo tridimensional)
             const petalMesh = new THREE.Mesh(petalGeo, petalMat1);
-            petalMesh.position.set(Math.cos(angle) * 0.8, Math.sin(angle) * 0.8, 0.05);
-            petalMesh.rotation.z = angle - Math.PI / 2;
-            petalMesh.rotation.x = 0.2; 
+            petalMesh.position.set(Math.cos(angle) * 0.92, Math.sin(angle) * 0.92, 0.08);
+            petalMesh.rotation.z = angle - Math.PI / 2 + randomVariance;
+            // Angulación pronunciada en X para sacarlo hacia el espectador
+            petalMesh.rotation.x = 0.35 + (Math.random() * 0.05); 
             petalMesh.scale.set(0, 0, 0);
             flowerHeadGroup.add(petalMesh);
             petalsArray.push(petalMesh);
 
+            // CAPA TRASERA: Pétalos inclinados hacia atrás para dar grosor
             const petalMeshBack = new THREE.Mesh(petalGeo, petalMat2);
             const backAngle = angle + (Math.PI / totalPetals);
-            petalMeshBack.position.set(Math.cos(backAngle) * 0.78, Math.sin(backAngle) * 0.78, -0.02);
-            petalMeshBack.rotation.z = backAngle - Math.PI / 2;
-            petalMeshBack.rotation.x = 0.08; 
+            petalMeshBack.position.set(Math.cos(backAngle) * 0.88, Math.sin(backAngle) * 0.88, -0.06);
+            petalMeshBack.rotation.z = backAngle - Math.PI / 2 + randomVariance;
+            petalMeshBack.rotation.x = 0.08; // Más plano atrás
             petalMeshBack.scale.set(0, 0, 0);
             flowerHeadGroup.add(petalMeshBack);
             petalsArray.push(petalMeshBack);
         }
 
+        // --- SISTEMA DE PARTÍCULAS MÁGICAS (DESTELLOS) ---
+        const particleCount = 120;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const speeds = [];
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            // Distribución tridimensional en una caja virtual
+            positions[i] = (Math.random() - 0.5) * 10;     // X
+            positions[i + 1] = Math.random() * 6 - 2;      // Y
+            positions[i + 2] = (Math.random() - 0.5) * 6;  // Z
+            
+            speeds.push({
+                y: 0.01 + Math.random() * 0.015,           // Velocidad de caída
+                x: (Math.random() - 0.5) * 0.01,           // Vaivén horizontal
+                sinSpeed: 1 + Math.random() * 2            // Oscilación matemática
+            });
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        // Aspecto de las partículas (puntos brillantes dorados suaves)
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xfef08a,
+            size: isMobile ? 0.06 : 0.08,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particleSystem);
+
+
         let clock = new THREE.Clock();
 
+        // --- BUCLE DE ANIMACIÓN ---
         function animate() {
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
 
-            // Crecimiento Tallo
+            // Crecimiento del Tallo
             if (stem.scale.y < 3.2) {
                 stem.scale.y = Math.min(3.2, elapsedTime * 1.3);
                 flowerHeadGroup.position.y = stem.scale.y;
@@ -443,7 +524,7 @@
                 leafGroup2.position.y = stem.scale.y * 0.6;
             }
 
-            // Hojas
+            // Despliegue Hojas
             if (elapsedTime > 1.2 && leafGroup1.scale.x < 1) {
                 const growth = (elapsedTime - 1.2) * 1.2;
                 leafGroup1.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
@@ -453,33 +534,50 @@
                 leafGroup2.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
             }
 
-            // Centro
+            // Crecimiento Botón Central
             if (elapsedTime > 2.5 && flowerHeadGroup.scale.x < 1) {
                 const growth = (elapsedTime - 2.5) * 1.5;
                 flowerHeadGroup.scale.set(Math.min(1, growth), Math.min(1, growth), Math.min(1, growth));
             }
 
-            // Pétalos
+            // Floración en Espiral de Pétalos
             if (elapsedTime > 3.2) {
                 petalsArray.forEach((p, index) => {
-                    const delay = 3.2 + (index * 0.03);
+                    const delay = 3.2 + (index * 0.02);
                     if (elapsedTime > delay && p.scale.x < 1) {
-                        const petalGrowth = (elapsedTime - delay) * 2.5;
+                        const petalGrowth = (elapsedTime - delay) * 2.8;
                         p.scale.set(Math.min(1, petalGrowth), Math.min(1, petalGrowth), Math.min(1, petalGrowth));
                     }
                 });
             }
 
+            // Revelar Título Final
             if (elapsedTime > 5.5) {
                 document.getElementById('text3').classList.add('show');
             }
 
-            // Solo rotar automáticamente el girasol si el usuario NO lo está arrastrando/moviendo con el ratón
-            if (!controls.state == -1 || controls.state === -1) {
-                sunflowerGroup.rotation.y = Math.sin(elapsedTime * 0.5) * 0.15;
+            // Animación de caída y física de partículas
+            const coords = particleSystem.geometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                const idx = i * 3;
+                
+                coords[idx + 1] -= speeds[i].y; // Caen en el eje Y
+                coords[idx] += Math.sin(elapsedTime * speeds[i].sinSpeed) * speeds[i].x; // Balanceo suave en X
+
+                // Si la partícula llega muy abajo, la reiniciamos arriba de la pantalla
+                if (coords[idx + 1] < -3) {
+                    coords[idx + 1] = 4;
+                    coords[idx] = (Math.random() - 0.5) * 10;
+                }
+            }
+            particleSystem.geometry.attributes.position.needsUpdate = true;
+
+            // Rotación automática sutil en reposo (se detiene automáticamente si el usuario arrastra la cámara)
+            if (controls.state === -1) {
+                sunflowerGroup.rotation.y = Math.sin(elapsedTime * 0.3) * 0.15;
             }
 
-            // Actualiza los controles dinámicos de la cámara en cada cuadro
+            // Actualización mandatoria del control orbital
             controls.update();
 
             renderer.render(scene, camera);
@@ -487,14 +585,14 @@
 
         animate();
 
-        // Soporte responsivo en tiempo real
+        // Manejo adaptativo responsivo del tamaño de pantalla
         window.addEventListener('resize', onWindowResize, false);
         function onWindowResize() {
             const isMobileNow = window.innerWidth < 768;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            camera.position.set(0, isMobileNow ? 1.5 : 2, isMobileNow ? 11 : 9);
-            sunflowerGroup.position.set(isMobileNow ? 0 : -1.2, isMobileNow ? -2.0 : -2.5, 0);
+            camera.position.set(0, isMobileNow ? 1.2 : 1.5, isMobileNow ? 10 : 7.5);
+            sunflowerGroup.position.set(isMobileNow ? 0 : -1.2, isMobileNow ? -1.8 : -2.3, 0);
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
     }
